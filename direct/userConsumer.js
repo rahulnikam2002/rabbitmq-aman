@@ -9,22 +9,22 @@ async function consumer() {
     const channel = await connection.createChannel();
 
     // static vars
-    const queue = "lib_queue";
+    const queue = "user_queue";
 
     await channel.assertQueue(queue, { durable: true });
 
-    console.log("Waiting for msgs:: Author");
+    console.log("Waiting for msgs:: User");
 
     channel.consume(queue, async (message) => {
       if (message !== null) {
         const msg = JSON.parse(message.content);
-        console.log("Message recv for author service...", msg); //NO
+        console.log("Message recv for user service...", msg); //NO
         console.log("----------------------------"); //no
-        console.log("Sending mail to author"); //no
+        console.log("Sending mail to user"); //no
 
         await sendMail(msg); //Sendig started
         console.log("----------------------------"); // Yes
-        console.log("Mail sent to author"); // Yes
+        console.log("Mail sent to user"); // Yes
         //Hame msg mil gaya
         channel.ack(message);
       }

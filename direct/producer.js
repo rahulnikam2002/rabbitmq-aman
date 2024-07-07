@@ -10,31 +10,64 @@ async function sendMail() {
 
     // static vars
     const exchange = "mail_exchange";
-    const routing_key = "send_mail";
-    const queue = "mail_queue";
 
-    const message = {
-      from: "newAman@gmail.com",
-      to: "newRahul@gmail.com",
-      subject: "Hello",
-      html: "Hello Rahul",
+    const libRoutingKey = "lib_sr_key";
+    const userRoutingKey = "user_sr_key";
+
+    const libQueue = "lib_queue";
+    const userQueue = "user_queue";
+
+    const authorMessage = {
+      bookName: "My Love Story by Aman",
+      author: "Aman",
+      platform: "Amazon Books",
+      price: 50000,
+      invoice: "https://google.com",
+      authorMailData: {
+        from: "amazonbooks@gmail.com",
+        to: "aman@gmail.com",
+        subject: "cong! you made a purchase",
+        html: "Book Name: My Love Story by Aman",
+      },
+    };
+
+    const userMessage = {
+      bookName: "My Love Story by Aman",
+      author: "Aman",
+      platform: "Amazon Books",
+      price: 50000,
+      invoice: "https://google.com",
+      userMailData: {
+        from: "amazonbooks@gmail.com",
+        to: "rahulnikam@gmail.com",
+        subject: "Thanks for pur. book (My Love Story by Aman)",
+        html: "Thank you!",
+      },
     };
 
     // Create exchang & Queue
     await channel.assertExchange(exchange, "direct", { durable: false });
-    await channel.assertQueue(queue, { durable: true });
+
+    await channel.assertQueue(libQueue, { durable: true });
+    await channel.assertQueue(userQueue, { durable: true });
 
     // Binding & Routing
-    await channel.bindQueue(queue, exchange, routing_key);
+    await channel.bindQueue(libQueue, exchange, libRoutingKey);
+    await channel.bindQueue(userQueue, exchange, userRoutingKey);
 
     // Sending data/msg to exchange
     channel.publish(
       exchange,
-      routing_key,
-      Buffer.from(JSON.stringify(message))
+      libRoutingKey,
+      Buffer.from(JSON.stringify(authorMessage))
     );
 
-    console.log("Mail was sent!!", message);
+    channel.publish(
+      exchange,
+      userRoutingKey,
+      Buffer.from(JSON.stringify(userMessage))
+    );
+    console.log("Mail was sent to author!!", authorMessage);
 
     setTimeout(() => {
       connection.close();
